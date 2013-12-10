@@ -9,6 +9,7 @@ package trawler;
 // to return the headers of the request.
 message Request {
     required int32 id = 1;
+    // List of HTTP methods from RFC 2616
     enum Method {
         OPTIONS = 0;
         GET     = 1;
