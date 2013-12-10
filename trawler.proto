@@ -1,0 +1,53 @@
+package trawler;
+
+// The request is sent from the client to the daemon
+// The request is understood to identify a URI:
+// either GET http://www.nationstates.net/{path}?{query} 
+// or POST http://www.nationstates.net/{path} with {query} as postdata
+// in any case with any {session} value sent as the cookie
+// If the headers boolean is true, the client is asking the daemon
+// to return the headers of the request.
+message Request {
+    required int32 id = 1;
+    enum Method {
+        OPTIONS = 0;
+        GET     = 1;
+        HEAD    = 2;
+        POST    = 3;
+        PUT     = 4;
+        DELETE  = 5;
+        TRACE   = 6;
+        CONNECT = 7;
+    }
+    required Method method = 2;
+    required string path = 3;
+    optional string query = 4;
+    optional string session = 5;
+    optional bool headers = 6;
+}
+
+// The Ack is sent as a reply to the client from the daemon when the daemon
+// receives a Request. The Ack should unambiguously indicate whether the daemon
+// has enqueued the Request or not, and must not indicate success until and
+// unless the Request is enqueued. The client may assume that an acknowledged
+// Request will be fulfilled unless the connection is closed.
+message Ack {
+    required int32 req_id = 1;
+    enum TQResult {
+        OK = 0;
+        BAD_REQUEST = 1;
+        UNAUTHORIZED = 2;
+    }
+    optional TQResult result = 2;
+}
+
+// The Response is sent to the client when the daemon fulfils a Request and
+// receives a response from nationstates.net, and contains the HTTP status code
+// as result and the response body as response. Optionally, if the client asked
+// for headers, it will also include the response headers as headers.
+message Response {
+    required int32 req_id = 1;
+    required int32 result = 2;
+    optional string headers = 3;
+    optional string response = 4;
+}
