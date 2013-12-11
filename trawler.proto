@@ -42,28 +42,29 @@ message Request {
     optional bool headers = 6;
 }
 
-// The Ack is sent as a reply to the client from the daemon when the daemon
-// receives a Request. The Ack should unambiguously indicate whether the daemon
-// has enqueued the Request or not, and must not indicate success until and
-// unless the Request is enqueued. The client may assume that an acknowledged
-// Request will be fulfilled unless the connection is closed.
-message Ack {
-    required int32 req_id = 1;
-    enum TQResult {
-        OK = 0;
-        BAD_REQUEST = 1;
-        UNAUTHORIZED = 2;
-    }
-    optional TQResult result = 2;
-}
-
 // The Response is sent to the client when the daemon fulfils a Request and
 // receives a response from nationstates.net, and contains the HTTP status code
 // as result and the response body as response. Optionally, if the client asked
 // for headers, it will also include the response headers as headers.
-message Response {
-    required int32 req_id = 1;
-    required int32 result = 2;
-    optional string headers = 3;
-    optional string response = 4;
+//
+// The Ack is sent as a reply to the client from the daemon when the daemon
+// receives a Request. The Ack should unambiguously indicate that the daemon
+// has enqueued the Request, and must not be sent until and unless the Request
+// is enqueued. The client may assume that an acknowledged Request will be 
+// fulfilled unless the connection is closed. The close cousin of Ack is Nack,
+// which indicates that the Request will _not_ be fulfilled.
+message Reply {
+    enum ReplyType {
+        Response = 0;
+        Ack = 1;
+        Nack = 2;
+    }
+    required ReplyType reply_type = 1;
+    required int32 req_id = 2;
+    // result: for Response: the HTTP status code, for Ack: 0, for Nack: an 
+    //         error value
+    required int32 result = 3; 
+    optional string headers = 4;
+    optional string response = 5;
 }
+
