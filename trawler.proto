@@ -15,6 +15,13 @@
 
 package trawler;
 
+// The login is sent from the client to the daemon as the first message
+// The login contains the user-agent to use for the client
+// In future, authentication may be added to the login.
+message Login {
+    required string user_agent = 1;
+}
+
 // The request is sent from the client to the daemon
 // The request is understood to identify a URI:
 // either GET http://www.nationstates.net/{path}?{query} 
