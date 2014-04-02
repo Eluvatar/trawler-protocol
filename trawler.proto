@@ -28,7 +28,8 @@ message Login {
 // or POST http://www.nationstates.net/{path} with {query} as postdata
 // in any case with any {session} value sent as the cookie
 // If the headers boolean is true, the client is asking the daemon
-// to return the headers of the request.
+// to return the headers of the request. (Otherwise the headers should be 
+// dropped.)
 message Request {
     required int32 id = 1;
     // List of HTTP methods from RFC 2616
@@ -60,11 +61,17 @@ message Request {
 // is enqueued. The client may assume that an acknowledged Request will be 
 // fulfilled unless the connection is closed. The close cousin of Ack is Nack,
 // which indicates that the Request will _not_ be fulfilled.
+//
+// The Logout is sent from the daemon to the client to announce the end of the
+// session. Should the client have unacknowledged requests after receiving
+// logout, it should treat all of them as NACKed.
+
 message Reply {
     enum ReplyType {
         Response = 0;
         Ack = 1;
         Nack = 2;
+        Logout = 3;
     }
     required ReplyType reply_type = 1;
     required int32 req_id = 2;
