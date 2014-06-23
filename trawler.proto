@@ -78,7 +78,11 @@ message Reply {
     // result: for Response: the HTTP status code, for Ack: 0, for Nack: an 
     //         error value
     required int32 result = 3; 
-    optional string headers = 4;
+    // headers: should be bytes and not string because NationStates uses the
+    //          windows-1252 encoding (and not utf-8) and headers should be
+    //          consistent with response as they are parts of the same data
+    //          stream
+    optional bytes headers = 4;
     // response: must be bytes and not string because NationStates uses the
     //           windows-1252 encoding (and not utf-8)
     optional bytes response = 5;
