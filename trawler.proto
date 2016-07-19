@@ -22,6 +22,11 @@ message Login {
     required string user_agent = 1;
 }
 
+message Timestamp {
+    required int64 seconds = 1;
+    required int32 nanos = 2;
+}
+
 // The request is sent from the client to the daemon
 // The request is understood to identify a URI:
 // either GET http://www.nationstates.net/{path}?{query} 
@@ -48,6 +53,13 @@ message Request {
     optional string query = 4;
     optional string session = 5;
     optional bool headers = 6;
+    // user_click: Should be set if and only if the request is being made
+    //             by immediate user action (i.e. clicking a button)
+    //             A given user_click should only initiate one request.
+    //             No further user_click actions should be made until the last
+    //             request has returned. (The daemon should reject requests
+    //             made prior to the conclusion of the last such request).
+    optional Timestamp user_click = 7;
 }
 
 // The Response is sent to the client when the daemon fulfils a Request and
@@ -76,7 +88,9 @@ message Reply {
     required ReplyType reply_type = 1;
     required int32 req_id = 2;
     // result: for Response: the HTTP status code, for Ack: 0, for Nack: an 
-    //         error value
+    //         error value:
+    //         1500 for generic error, 1501 for unsupported method, 1429 for
+    //         click too recent
     required int32 result = 3; 
     // headers: should be bytes and not string because NationStates uses the
     //          windows-1252 encoding (and not utf-8) and headers should be
